@@ -1,4 +1,4 @@
-pragma solidity ^0.8.15;
+pragma solidity ^0.8.11;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract Game is ReentrancyGuard{
