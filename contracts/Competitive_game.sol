@@ -29,4 +29,10 @@ function startGame(uint _gameId)  public payable nonReentrant {
         gameStatus[_gameId]= 3;
         emit EndGameEvent(_winner, _gameId, gameStatus[_gameId]);
 
+    }
+
+    function returnPlayer(uint _game, uint _index) public view returns (address) {
+        return gameToUser[_game][_index];
+    }
+
 }
