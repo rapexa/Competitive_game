@@ -23,5 +23,10 @@ function startGame(uint _gameId)  public payable nonReentrant {
         emit StartGameEvent(msg.sender, _gameId, gameStatus[_gameId]);
     }
 
+    function endGame(uint _gameId, address payable _winner) payable external {
+        require(gameToUser[_gameId][0] == _winner || gameToUser[_gameId][1] == _winner );
+        _winner.transfer(gameToBet[_gameId] * 2);
+        gameStatus[_gameId]= 3;
+        emit EndGameEvent(_winner, _gameId, gameStatus[_gameId]);
 
 }
