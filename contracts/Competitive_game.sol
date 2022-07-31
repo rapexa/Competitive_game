@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./security/ReentrancyGuard.sol";
 
 contract Game is ReentrancyGuard{
     mapping (uint => address[2]) gameToUser;
