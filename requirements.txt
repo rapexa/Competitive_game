@@ -1,0 +1,4 @@
+Truffle v5.4.29 (core: 5.4.29)
+Solidity - 0.8.11 (solc-js)
+Node v16.15.1
+Web3.js v1.5.3
