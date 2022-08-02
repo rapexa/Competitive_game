@@ -16,6 +16,7 @@
 - [ ] Play online Multiplayer task (2 players)
 - [ ] Code compatibale contract for online game (v0.3)
 - [ ] Connect to web3 and our contract v0.3
+- [ ] Split some percentage of money for provider
 - [ ] Play with Each other and party time :)
 - [ ] beautify code
 - [ ] internationalization
