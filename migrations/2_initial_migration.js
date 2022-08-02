@@ -1,5 +1,5 @@
-const Game = artifacts.require("Game");
+const ReentrancyGuard = artifacts.require("ReentrancyGuard");
 
 module.exports = function (deployer) {
-  deployer.deploy(Game);
+  deployer.deploy(ReentrancyGuard);
 };
