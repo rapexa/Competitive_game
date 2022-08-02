@@ -1,7 +1,22 @@
 # TODO
 
-- [x] 
-- [x] 
-- [x] 
+- [x] Start project on Git for Teamwork
+- [x] Push Each Developer contract
+- [x] Contract base codeing (v0.1)
+- [x] Use stable Solidity version
+- [x] Add requirements.txt file
+- [x] Add TODO.md file
+- [x] Contract Equal game task (v0.2)
+- [x] Comment contract Codes
+- [x] Meeting for frontend
+- [x] Choose frontend framework (flutter)
+- [x] Choose First game (Rock Paper Scissor)
+- [x] Front End base codeing (web, apk)
+- [ ] Connecting Players via Socket with python
+- [ ] Play online Multiplayer task (2 players)
+- [ ] Code compatibale contract for online game (v0.3)
+- [ ] Connect to web3 and our contract v0.3
+- [ ] Add more games
+- [ ] Play with Each other and party time :)
 - [ ] beautify code
 - [ ] internationalization
