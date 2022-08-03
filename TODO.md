@@ -19,4 +19,5 @@
 - [ ] Split some percentage of money for provider
 - [ ] Play with Each other and party time :)
 - [ ] beautify code
+- [ ] Document code
 - [ ] internationalization
