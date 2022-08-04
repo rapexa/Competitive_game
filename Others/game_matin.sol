@@ -1,240 +1,143 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
+import "./security/ReentrancyGuard.sol";
+import "./utils/Context.sol";
 
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+contract MyContract is ReentrancyGuard, Context {
+    address public admin;
+    address public owner;
 
-contract Game is ReentrancyGuard, Ownable {
-    using Counters for Counters.Counter; // using counters labrary for increament ids
-    Counters.Counter public gameId;
+    mapping(uint256 => uint256) minimumBet;                         // minimumBet[gameId] = 1 ether
+    mapping(uint256 => uint256) balanceGame;                        // balanceGame[gameId] = 2 ether
+    mapping(address => mapping(uint256 => uint256)) balancePlayer;  // balancePlayer[playerAddress][gameId] = 1 ether
+    mapping(address => mapping(uint256 => bool)) isWinner;          // isWinner[playerAddress][gameId] = false
+    mapping(uint256 => bool) isGameTied;                            // isGameTied[gameId] = false
 
-    struct GameInfo {
-        uint256 _gameId;
-        uint256 amountTokenLoked;
-        address host;                       //host who create game, every address can create game only for once
-        address gust;                       //gust who join the game, every address can join the game only for once
-        bool started;                       //player1 created new game and paied some tokens
-        bool locked;                        //player2 joined the game and paied some tokens
-        bool opened;                        //winner and loser are known
-        bool ended;                         //winner widthraw tokens and hasStarted[player1] = false
+    event GameStarted(address starter, uint256 gameId);
+    event RewardGotten(address receiver, uint256 amount);
+    event BetDeposited(address sender, uint256 amount);
+
+    modifier onlyOwner() {
+        require(_msgSender() == owner, "MyContract: only admin can call it!");
+        _;
     }
 
-    mapping(uint256 => GameInfo) private everyGameInfo;                         // evertGameInfo[_id] = GameInfo...
-    mapping(address => bool) private hasStarted;                                // hasStarted[player1] = false
-    mapping(address => bool) private hasJoined;                                 // hasJoined[player2] = false
-    mapping(uint256 => mapping(address => bool)) public isWinner;               // isWinner[gameId[player1]] = false
-    mapping(address => mapping(uint256 => uint256)) private balancePlayers;     // balacePlayers[player1][2] = 1000...
-
-    // emit event after creating a game
-    event GameCreated(
-        uint256 indexed gameId,
-        uint256 amountTokenLoked,
-        address host,
-        address gust,
-        bool started,
-        bool locked,
-        bool opened,
-        bool ended
-    );
-
-    // balace of contract
-    function getBalance() external view onlyOwner returns (uint256) {
-        return address(this).balance;
+    modifier onlyAdmin() {
+        require(_msgSender() == admin, "MyContract: only admin can call it!");
+        _;
     }
 
-    // state of every games with specefic id. returns struct
-    function gameState(uint256 _id) external view returns (GameInfo memory) {
-        return everyGameInfo[_id];
+    modifier isSender(address sender) {
+        require(
+            _msgSender() == sender,
+            "MyContract: this address is not msg sender!"
+        );
+        _;
     }
 
-    // start a game. player starts game with his address.
-    function createGame(address _player1) external payable nonReentrant {
-        require(
-            _msgSender() == _player1,
-            "Game: msg sender not equal address palyer"
-        );
-        require(
-            hasStarted[_player1] == false,
-            "Game: this address has started a game before!"
-        );
-        require(
-            msg.value > 0,
-            "Game: amount token is less than or equal zero!"
-        );
-
-        gameId.increment();
-        uint256 currentId = gameId.current();                       // current id is game id
-        balancePlayers[_player1][currentId] = msg.value;            // update balance player for this game id
-        everyGameInfo[currentId] = GameInfo(                        // set state for game id
-            currentId,
-            msg.value,
-            payable(_player1),
-            address(0),
-            true,
-            false,
-            false,
-            false
-        );
-
-        hasStarted[_player1] = true;            
-
-        emit GameCreated(
-            currentId,
-            msg.value,
-            _player1,
-            address(0),
-            true,
-            false,
-            false,
-            false
-        );
+    // the first admin and default admin is owner
+    constructor() {
+        owner = _msgSender();
+        admin = owner;
     }
 
-    // player1 can cancel the game when he wants, if nobody join in his game.
-    function cancelTheGame(uint256 _id) external {
-        require(
-            everyGameInfo[_id].host == _msgSender(),
-            "Game: your are not host of this game!"
-        );
-        require(
-            everyGameInfo[_id].started == true &&
-            everyGameInfo[_id].gust == address(0),
-            "Game: you can not cancel the game because the game has started!"
-        );
+    // id must be random number
+    function startGame(address _player, uint256 _gameId)
+        external
+        payable
+        isSender(_player)
+        nonReentrant
+    {
+        require(msg.value > 0, "MyContract: value must more than zero!");
 
+        minimumBet[_gameId] = msg.value;
+        balancePlayer[_player][_gameId] = msg.value;
+        balanceGame[_gameId] = msg.value;
 
-        delete everyGameInfo[_id];
-        hasStarted[_msgSender()] = false;
-        uint256 amount = balancePlayers[_msgSender()][_id];
-        balancePlayers[_msgSender()][_id] = 0;
-        payable(_msgSender()).transfer(amount);
+        emit GameStarted(_player, _gameId);
     }
 
-    function joinGame(uint256 _id, address _player2)
+    // players deposit thir tokens sperated(the necessary condition
+    // is amount of tokens checkes in web2)
+    function depositBet(address _player, uint256 _gameId)
         external
         payable
         nonReentrant
+        isSender(_player)
     {
         require(
-            _msgSender() == _player2,
-            "Game: msg sender not equal address palyer"
-        );
-        require(
-            hasStarted[_player2] == false,
-            "Game: this address has started before, so can not join now!"
-        );
-        require(
-            hasJoined[_player2] == false,
-            "Game: this address has joined a game, so can not join now!"
-        );
-        require(
-            msg.value == everyGameInfo[_id].amountTokenLoked,
-            "Game: amount token is not equal with token that locked by player1!"
-        );
-        require(
-            everyGameInfo[_id].locked == false,
-            "Game: this game has locked before!"
-        );
-        require(
-            everyGameInfo[_id].started == true &&
-                everyGameInfo[_id].gust == address(0),
-            "Game: this game does not have place or does not started!"
+            msg.value >= minimumBet[_gameId],
+            "MyContract: the value has to more than minimumBet for starting this game!"
         );
 
-        hasJoined[_player2] = true;
-        balancePlayers[_player2][_id] += msg.value;
-        everyGameInfo[_id].amountTokenLoked += msg.value;
-        everyGameInfo[_id].locked = true;
-        everyGameInfo[_id].gust = _player2;
+        balancePlayer[_player][_gameId] = msg.value;
+        balanceGame[_gameId] += msg.value;
+
+        emit BetDeposited(_player, msg.value);
     }
 
-    // bug: check valid game
-    //owner can determine the winner of curse this function is not correct in logical :)
-    function chooseWinner(
-        uint256 _id,
-        address winner,
-        address loser
-    ) external onlyOwner {
-        require(
-            everyGameInfo[_id].locked == true,
-            "Game: this game does not have place or does not started!"
-        );
-        require(
-            everyGameInfo[_id].host == winner ||
-                everyGameInfo[_id].gust == winner,
-            "Game: winner is not in this game!"
-        );
-        require(
-            everyGameInfo[_id].host == loser ||
-                everyGameInfo[_id].gust == loser,
-            "Game: loser is not in this game!"
-        );
-
-        isWinner[_id][winner] = true;
-        everyGameInfo[_id].opened = true;
-
-        if (
-            everyGameInfo[_id].host == winner &&
-            everyGameInfo[_id].host == loser
-        ) {
-            playersExitedFromTheGame(winner, loser);
-        }
+    // setting a winner by admin from back-end. back-end pass address
+    // as arguman, by calling this function with private key of admin.
+    function setNewWinner(address payable _winner, uint256 _gameId)
+        external
+        onlyAdmin
+    {
+        isWinner[_winner][_gameId] = true;
+        balancePlayer[_winner][_gameId] = balanceGame[_gameId];
+        balanceGame[_gameId] = 0;
     }
 
-    function withdraw(uint256 _id) external nonReentrant {
+    // winner withdraws all Reward of the game
+    function withdrawReward(address _winner, uint256 _gameId)
+        external
+        payable
+        isSender(_winner)
+        nonReentrant
+    {
         require(
-            everyGameInfo[_id].opened == true,
-            "Game: this game does not oppened yet!"
-        );
-        require(
-            everyGameInfo[_id].host == _msgSender() ||
-                everyGameInfo[_id].gust == _msgSender(),
-            "Game: this address has not in this game!"
-        );
-        require(
-            isWinner[_id][_msgSender()] == true,
-            "Game: you are not winner!"
+            isWinner[_winner][_gameId] == true,
+            "MyContract: only winners can call it!"
         );
 
-        everyGameInfo[_id].ended = true;
-        uint256 amount = everyGameInfo[_id].amountTokenLoked;
-        balancePlayers[_msgSender()][_id] = 0;
-        payable(_msgSender()).transfer(amount);
+        (bool sent, ) = _winner.call{value: balancePlayer[_winner][_gameId]}(
+            ""
+        );
+
+        require(sent, "MyContract: withdrawReward has failed!");
+
+        delete isWinner[_winner][_gameId];
+
+        emit RewardGotten(_winner, balancePlayer[_winner][_gameId]);
     }
 
-    //show the games that started and dont have gust
-    function showAllStartedGames() external view returns (GameInfo[] memory) {
-        uint256 gameCount = gameId.current();
-        uint256 gamesCountForShowing = 0;
-        uint256 currentIndex = 0;
-
-        for (uint256 i = 0; i < gameCount; i++) {
-            if (
-                everyGameInfo[i + 1].gust == address(0) &&
-                everyGameInfo[i + 1].host != address(0)
-            ) {
-                gamesCountForShowing += 1;
-            }
-        }
-
-        GameInfo[] memory games = new GameInfo[](gamesCountForShowing);
-
-        for (uint256 i = 0; i < gameCount; i++) {
-            if (everyGameInfo[i + 1].gust == address(0)) {
-                uint256 currentI = i + 1;
-                GameInfo storage currentGame = everyGameInfo[currentI];
-                games[currentIndex] = currentGame;
-                currentIndex += 1;
-            }
-        }
-        return games;
+    // setting a new admin
+    function setNewAdmin(address _admin) external onlyOwner {
+        admin = _admin;
     }
 
-    function playersExitedFromTheGame(address host, address gust) internal {
-        hasStarted[host] = false;
-        hasJoined[gust] = false;
+    function contractBalance() external view onlyOwner returns (uint256) {
+        return address(this).balance;
+    }
+
+    function getPlayersBalance(address _player, uint256 _gameId)
+        external
+        view
+        returns (uint256)
+    {
+        return balancePlayer[_player][_gameId];
+    }
+
+    function getGameBalance(uint256 _gameId) external view returns (uint256) {
+        return balanceGame[_gameId];
+    }
+
+    function isAddresWinner(address _player, uint256 _gameId)
+        external
+        view
+        returns (bool)
+    {
+        return isWinner[_player][_gameId];
     }
 }
+
+// mapping(address => mapping(address => mapping(uint256 => uint256))) balancePlayer; // balancePlayer[playerAddress][tokenAddress][gameId] = 1 ether
