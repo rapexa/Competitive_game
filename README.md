@@ -11,7 +11,11 @@ Smart contract for a competitive game project focused on depositing the prize to
 - Solidity
 - Truffle
 - Flutter
-
+- Flask
+- Python
+- Mysql
+- SocketIO
+- Rest api
 
 ## How to run
 1. Install all Requirements for this project.
