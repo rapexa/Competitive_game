@@ -1,15 +1,9 @@
-DAO: {
-	Player(id, name, email, password)
-	Game(id, players, status)
-	PaymentHash(id, hash)
+DB: {
+	Player(UniqeID, name, Status)
+	Game(Uniqe-id, player1, player2, status)
 } 
 
 EndPoints{
-
-	Shared-Headers: {
-		Token
-		Credential
-	}
 
 	getAllRockPaperGames: {
 		Method: GET
@@ -37,6 +31,10 @@ EndPoints{
 		}
 
 	}
+
++ User status :
+- Connected
+- Disconnected
 
 	createRockPaperGame: {
 		Method: POST
