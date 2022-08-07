@@ -11,11 +11,6 @@ app.config['SECRET_KEY'] = config.SECRET_KEY
 socketio = SocketIO(app)
 w3 = Web3(Web3.HTTPProvider("https://eth-mainnet.public.blastapi.io"))
 
-@app.errorhandler(404)
-def page_not_found():
-    # note that we set the 404 status explicitly
-    return 404
-
 @app.route("/ok")
 def sys_check():
     '''this function tell that falsk server is ok and running!!'''
@@ -31,8 +26,8 @@ def Handle_All_RockPaperScissors_games():
     List_Of_Games = Reading_Games_From_DB()
     Jsonify_List_Of_Games = {} 
     for Game in List_Of_Games:
-        id, players, status = Game
-        Jsonify_List_Of_Games[id] = {'players' : players , 'status' : status}
+        id, player1, player2, status = Game
+        Jsonify_List_Of_Games[id] = {'player1' : player1 , 'player2' : player2 , 'status' : status}
     Response = {'Status Code':200 , 'Games': Jsonify_List_Of_Games}
     return jsonify(Response), 200
 
@@ -67,7 +62,7 @@ def Handle_RockPaperScissors_Changed(data):
 def Check_User_If_Online(playerhash):
     List_Of_Users = Reading_Users_From_DB()
     for User in List_Of_Users:
-        UniqeID, name, email, password, Status = User
+        id, UniqeID, name, Status = User
         if playerhash == UniqeID:
             if Status == "Connected":
                 return True
@@ -85,7 +80,7 @@ def Check_Payment_Hash(paymentHash):
 def Update_User_Status_In_Users_Table(UniqeID,status):
     db = connect_to_database()
     cur = db.cursor()                       
-    qury = f'UPDATE Users SET status = "{status}" WHERE id = {UniqeID};'
+    qury = f'UPDATE Users SET status = "{status}" WHERE Uniqeid = {UniqeID};'
     cur.execute(qury)
     db.commit()
     db.close()
@@ -138,7 +133,7 @@ def connect_to_database():
     db = mysql.connector.connect(host=config.MYSQL_HOST,
                        user=config.MYSQL_USER,
                        passwd=config.MYSQL_PASS,
-                       db=config.MYSQL_DB)
+                       db=config.MYSQL_DATABAS)
     return db
 
 if __name__ == '__main__':

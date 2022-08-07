@@ -1,10 +1,10 @@
 #this is config file, please rename it to config.py and edit it acordingly :)
 
-SECRET_KEY = "place your secret key here"
+SECRET_KEY = "secret!"
 
 # mysql connector:
 
 MYSQL_HOST = "localhost"
-MYSQL_USER = "myworks"
-MYSQL_PASS = "works"
-MYSQL_DB = "myworks"
+MYSQL_USER = "DEVELOPERUSER"
+MYSQL_PASS = "DEVELOPERPASS"
+MYSQL_DATABAS = "CP_GAME"

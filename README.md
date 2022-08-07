@@ -20,3 +20,8 @@ Smart contract for a competitive game project focused on depositing the prize to
 ## How to run
 1. Install all Requirements for this project.
 2. Clone the project `git clone https://github.com/rapexa/Competitive_game && cd Competitive_game`
+
+CREATE DATABASE CP_GAME;
+
+CREATE USER 'DEVELOPERUSER'@'localhost' IDENTIFIED BY 'DEVELOPERPASS';
+
