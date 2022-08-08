@@ -1,11 +1,11 @@
 DB: {
-	Player(UniqeID, name, Status)
-	Game(Uniqe-id, player1, player2, status)
+-	Player(id, Uniqeid, name, Status)
+-	Game(Uniqe-id, player1, player2, status)
 } 
 
 EndPoints{
 
-	getAllRockPaperGames: {
+-	getAllRockPaperGames: {
 		Method: GET
 		Parameters:{}
 		Description: {
@@ -13,13 +13,30 @@ EndPoints{
 		}
 	}
 
-	joinToRockPaperGame: {
+-	indexdocument: {
+		Method: GET
+		Parameters:{}
+		Description: {
+			این تابع صفحه اصلی سایت و توضیحات پروژه هست که در ان لینک دانلود اپلیکیشن اندرویدی و بازی انلاین و بقیه لینک های شبکه های اجتماعی و غیره وجود داره کل پروژه در این صفحه به طور دقیق توضیح داده شده است!
+		}
+	}
+
+-	syscheck: {
+		Method: GET
+		Parameters:{}
+		Description: {
+			این تابع وضعیت سرور را چک میکند که در ران هست یا خیر
+		}
+	}
+
+-	joinToRockPaperGame: {
 		Method: POST
 		Parameters:{
 			gameId,
 			playerId,
 			paymentHash,
 			playerName,
+			Value,
 		}
 		Description: {
 		این اندپوینت باید زمانی قابل دسرس باشد که کلاینت به سوکت کانکت شده باشد در غیر این صورت قابل کال شدن نیست چون در صورت کانکت نبودن سوکت کارایی ندارد
@@ -32,11 +49,19 @@ EndPoints{
 
 	}
 
-+ User status :
-- Connected
-- Disconnected
++	changeuserstatus: {
+		Method: POST
+		Parameters: {
+			UniqeID,,
+			Status,
+		}
+		Description: {
+			این تابع وضعیت یوزر ها را تغییر میدهد که انلاین هستند و متصل هستند یا خیر
+		}
+	}
+}
 
-	createRockPaperGame: {
++	createRockPaperGame: {
 		Method: POST
 		Parameters: {
 			gameId,
@@ -55,16 +80,42 @@ EndPoints{
 	}
 }
 
++	createuser: {
+		Method: POST
+		Parameters: {
+			Uniqeid,
+			name,
+			status,
+		}
+		Description: {
+			این تابع یک یوزر جدید با نام و ادرس ولت در دیتابیل اصلی میسازد!
+		}
+	}
+}
+
+'''
+ User status :
+ Connected
+ Disconnected
+'''
+
+'''
+Game status :
+Pending
+started
+ended
+'''
+
 Socket channels {
 
-	rockPaperAdded {
+-	rockPaperAdded {
 		Type: BROADCAST
 		Parameters: *Game
 		Description: {
 		به تمامی بازیکن ها این گیم ورودی را ارسال میکند این کانال در اندپوینت  createRockPaperGame اجرا میشود 
 		}
 	}
-	rockPaperChanged {
+-	rockPaperChanged {
 		Type: BROADCAST
 		Parameters: playerId, paymentHash, gameId
 		Description: {
@@ -74,7 +125,7 @@ Socket channels {
 		}
 	}
 	
-	gameEmitter {
++	gameEmitter {
 		Type: ROOM 
 		Parameter: gameId, action
 		Description: {
