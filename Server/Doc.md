@@ -49,7 +49,7 @@ EndPoints{
 
 	}
 
-+	changeuserstatus: {
+-	changeuserstatus: {
 		Method: POST
 		Parameters: {
 			UniqeID,,
