@@ -73,6 +73,19 @@ def Handle_RockPaperScissors_Changed(data):
     ''''''
     socketio.emit('Rock Paper Scissors Changed', data, broadcast=True)
 
+@socketio.on('RockPaperScissorsGameEmitter')
+def Handle_RockPaperScissors_Changed(data):
+    ''''''
+    #TODO
+    List_Of_Games = Reading_Games_From_DB()
+    Last_Game_ID, player1, player2, status = List_Of_Games[-1]
+    writing_Winer_to_database(UniqeID, name,Last_Game_ID)
+    pass
+
+@app.route('/')
+def index():
+    #TODO 
+    return render_template('index.html')
 
 @app.route('/Join_To_RockPaperScissors_game',methods=["GET", "POST"])
 def Handle_Join_To_RockPaperScissors_game():
@@ -101,14 +114,10 @@ def Handle_Create_RockPaperScissors_Game():
             writing_Game_to_database(playerhash)
             List_Of_Games = Reading_Games_From_DB()
             Last_Game_ID, player1, player2, status = List_Of_Games[-1]
-            Response = {'Event' : 'Create_RockPaperScissors' , 'gameId': Last_Game_ID , 'playerhash' : playerhash , 'playerName' : playerName , 'status' : 'started'}
+            Response = {'Event' : 'Create_RockPaperScissors' , 'gameId': Last_Game_ID , 'playerhash' : playerhash , 'playerName' : playerName , 'status' : 'pending'}
             return jsonify(Response), 200
         return "ERROR"
 
-@app.route('/')
-def index():
-    #TODO 
-    return render_template('index.html')
 
 def Check_Payment_Hash(TXHASH,playerhash,Value):
     ''''''
@@ -192,11 +201,17 @@ def Reading_Winers_From_DB():
     db.close()
     return cur.fetchall()
 
-def writing_Winers_to_database(UniqeID, name):
+def writing_Winer_to_database(UniqeID, name,id):
     ''''''
     db = connect_to_database()
     cur = db.cursor()                       
     qury = f'INSERT INTO Winers (id, Uniqeid, name) VALUES  (null,"{UniqeID}","{name}");'
+    cur.execute(qury)
+    db.commit()
+    db.close()
+    db = connect_to_database()
+    cur = db.cursor()                       
+    qury = f'UPDATE games SET status = "ended" WHERE id = {id};'
     cur.execute(qury)
     db.commit()
     db.close()

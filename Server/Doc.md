@@ -128,7 +128,7 @@ Socket channels {
 		}
 	}
 	
-+	gameEmitter {
++	GameEmitter {
 		Type: ROOM 
 		Parameter: gameId, action
 		Description: {
