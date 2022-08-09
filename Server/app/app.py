@@ -39,6 +39,18 @@ def Handle_Change_User_Online_Status():
         UniqeID = request.get_json()["UniqeID"]
         Update_User_Status_In_Users_Table(UniqeID, Status)
         return "200"
+    return "ERROR"
+
+@app.route('/Create_User',methods=["GET", "POST"])
+def Handle_Create_User():
+    ''''''
+    if request.method == 'POST': 
+        name = request.get_json()["name"]
+        Status = request.get_json()["Status"]
+        Uniqeid = request.get_json()["Uniqeid"]
+        writing_Users_to_database(Uniqeid, name, Status)
+        return "200"
+    return "ERROR"
 
 @socketio.on('RockPaperScissorsAdded')
 def Handle_RockPaperScissors_Added(game):
