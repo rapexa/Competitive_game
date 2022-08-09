@@ -78,6 +78,22 @@ def Handle_Join_To_RockPaperScissors_game():
             return jsonify(Response), 200
         return "ERROR"
 
+@app.route('/Create_RockPaperScissors_Game',methods=["GET", "POST"])
+def Handle_Create_RockPaperScissors_Game():
+    ''''''
+    if request.method == 'POST':
+        playerhash = request.get_json()["playerhash"]
+        TXHASH = request.get_json()["paymentHash"]
+        playerName = request.get_json()["playerName"]
+        Value = request.get_json()["Value"]
+        if Check_Payment_Hash(TXHASH,playerhash,Value):
+            writing_Game_to_database(playerhash)
+            List_Of_Games = Reading_Games_From_DB()
+            Last_Game_ID, player1, player2, status = List_Of_Games[-1]
+            Response = {'Event' : 'Create_RockPaperScissors' , 'gameId': Last_Game_ID , 'playerhash' : playerhash , 'playerName' : playerName , 'status' : 'started'}
+            return jsonify(Response), 200
+        return "ERROR"
+
 @app.route('/')
 def index():
     #TODO 
@@ -131,11 +147,11 @@ def Update_Secound_Player_Address_In_Games_Table(gameId,player,status):
     db.commit()
     db.close()
 
-def writing_Games_to_database(player1,status):
+def writing_Game_to_database(player1):
     ''''''
     db = connect_to_database()
     cur = db.cursor()                       
-    qury = f'INSERT INTO Games (id, player1, player2, status) VALUES (null,"{player1}", "0x0000000000000000000000000000000000000000", "{status}");'
+    qury = f'INSERT INTO Games (id, player1, player2, status) VALUES (null,"{player1}", "0x0000000000000000000000000000000000000000", "pending");'
     cur.execute(qury)
     db.commit()
     db.close()
