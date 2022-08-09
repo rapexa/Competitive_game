@@ -13,6 +13,14 @@ EndPoints{
 		}
 	}
 
+-	getAllRockPaperGamesWiners: {
+		Method: GET
+		Parameters:{}
+		Description: {
+			این تابع تمامی برندگان بازی ها  را بر میگرداند دقت کنید که ایدی همان بازی ایدی بازی ها میباشد و اگر یونیکایدی برابر ادرس 0 و اسم NULL بود ینی بازی مساوی بوده و برنده نداشته
+		}
+	}
+
 -	indexdocument: {
 		Method: GET
 		Parameters:{}

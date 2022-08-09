@@ -31,6 +31,17 @@ def Handle_All_RockPaperScissors_games():
     Response = {'Status Code':200 , 'Games': Jsonify_List_Of_Games}
     return jsonify(Response), 200
 
+@app.route('/All_RockPaperScissors_games_Winers')
+def All_RockPaperScissors_games_Winers():
+    ''''''
+    List_Of_Games_Winers = Reading_Winers_From_DB()
+    Jsonify_List_Of_Games_Winers = {} 
+    for Game_Winers in List_Of_Games_Winers:
+        id, player, name, = Game_Winers
+        Jsonify_List_Of_Games_Winers[id] = {'Winer' : player , 'name' : name}
+    Response = {'Status Code':200 , 'Winers': Jsonify_List_Of_Games_Winers}
+    return jsonify(Response), 200
+
 @app.route('/Change_User_Online_Status',methods=["GET", "POST"])
 def Handle_Change_User_Online_Status():
     ''''''
@@ -172,6 +183,23 @@ def Reading_Games_From_DB():
     cur.execute("SELECT * FROM Games;")
     db.close()
     return cur.fetchall()
+
+def Reading_Winers_From_DB():
+    ''''''
+    db = connect_to_database()
+    cur = db.cursor()
+    cur.execute("SELECT * FROM Winers;")
+    db.close()
+    return cur.fetchall()
+
+def writing_Winers_to_database(UniqeID, name):
+    ''''''
+    db = connect_to_database()
+    cur = db.cursor()                       
+    qury = f'INSERT INTO Winers (id, Uniqeid, name) VALUES  (null,"{UniqeID}","{name}");'
+    cur.execute(qury)
+    db.commit()
+    db.close()
 
 def Reading_Users_From_DB():
     ''''''
