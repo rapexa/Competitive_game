@@ -1,6 +1,7 @@
 #this is config file, please rename it to config.py and edit it acordingly :)
 
 SECRET_KEY = "secret!"
+ETH = "https://eth-mainnet.public.blastapi.io"
 
 # mysql connector:
 
