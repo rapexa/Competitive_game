@@ -12,11 +12,11 @@
 - [x] Choose frontend framework (flutter)
 - [x] Choose First game (Rock Paper Scissor)
 - [x] Front End base codeing (web, apk)
-- [ ] make Index.html page for Flask to load (project discription) 
-- [ ] document backend code and send docuument to group(review-code)
-- [ ] Connecting Players via Socket with python
+- [x] make Index.html page for Flask to load (project discription) 
+- [x] save gameemitter datas on list and choose who is winner on gameemitter func 
+- [x] document backend code and send document to group(review-code)
+- [x] Connecting Players via Socket with python
 - [ ] Play online Multiplayer task (2 players)
-- [ ] Code compatibale contract for online game (v0.3)
 - [ ] Connect to web3 and our contract v0.3
 - [ ] Split some percentage of money for provider
 - [ ] live project on server for real test
